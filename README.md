@@ -1,2 +1,2 @@
-# posts
-Examples of Posts and Tips
+# My samples
+This repository is dedicated to sharing all examples used in my articles.
