@@ -13,12 +13,21 @@ namespace IdentityResolution
             using var db = new IdentityResolutionContext();
             CargaInicial(db);
 
+            // Consultar Produtos
             var produtos = db
                 .Produtos
                     .Include(p => p.Vendedor)
-                //.AsNoTrackingWithIdentityResolution()
-                .AsNoTracking()
+                //.AsNoTracking()
+                .AsNoTrackingWithIdentityResolution()
                 .ToList();
+
+            foreach (var produto in produtos)
+            {
+                Console.WriteLine(
+                    "Produto: {0}, Vendedor: {1}",
+                    produto.Descricao,
+                    produto.Vendedor.Nome);
+            }
         }
 
         private static void CargaInicial(IdentityResolutionContext db)
@@ -38,40 +47,29 @@ namespace IdentityResolution
                 }));
 
                 db.SaveChanges();
-            } 
-            
+            }
         }
     }
 
 
-public class IdentityResolutionContext : DbContext
-{
-    public DbSet<Vendedor> Vendedores { get; set; }
-    public DbSet<Produto> Produtos { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder
-            .EnableSensitiveDataLogging()
-            .LogTo(Console.WriteLine, new[] { RelationalEventId.CommandExecuted })
-            .UseSqlServer(
-                "Data source=(localdb)\\mssqllocaldb;Initial Catalog=IdentityResolution5;Integrated Security=true");
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public class IdentityResolutionContext : DbContext
     {
-        modelBuilder.Entity<Vendedor>(p =>
-        {
-            p.ToTable("Vendedores");
-            p.HasMany<Produto>()
-                .WithOne(p => p.Vendedor);
-        });
+        public DbSet<Vendedor> Vendedores { get; set; }
+        public DbSet<Produto> Produtos { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .EnableSensitiveDataLogging()
+                .LogTo(Console.WriteLine, new[] { RelationalEventId.CommandExecuted })
+                .UseSqlServer(
+                    "Data source=(localdb)\\mssqllocaldb;Initial Catalog=IdentityResolution5;Integrated Security=true");
     }
-}
 
     public class Vendedor
     {
         public int Id { get; set; }
         public string Nome { get; set; }
-        public IList<Produto> Produtos { get; set; }
+        public virtual ICollection<Produto> Produtos { get; set; }
     }
 
     public class Produto
@@ -79,6 +77,8 @@ public class IdentityResolutionContext : DbContext
         public int Id { get; set; }
         public string Descricao { get; set; }
         public decimal Valor { get; set; }
-        public Vendedor Vendedor { get; set; }
+
+        public int VendedorId { get; set; }
+        public virtual Vendedor Vendedor { get; set; }
     }
 }
