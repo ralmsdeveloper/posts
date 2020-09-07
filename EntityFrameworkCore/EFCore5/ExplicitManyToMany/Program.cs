@@ -28,23 +28,24 @@ namespace ManyToMany
     {
         public DbSet<Student> Students { get; set; }
         public DbSet<Course> Courses { get; set; }
+        public DbSet<CourseStudent> CourseStudents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder
-                .Entity<Student>()
-                .HasMany(p => p.Courses)
-                .WithMany(p => p.Students)
-                .UsingEntity<CourseStudent>(
-                    p => p.HasOne<Course>().WithMany(),
-                    p => p.HasOne<Student>().WithMany());
+            //modelBuilder
+            //    .Entity<Student>()
+            //    .HasMany(p => p.Courses)
+            //    .WithMany(p => p.Students)
+            //    .UsingEntity<CourseStudent>(
+            //        p => p.HasOne<Course>().WithMany(),
+            //        p => p.HasOne<Student>().WithMany());
 
-            modelBuilder
-                .Entity<CourseStudent>(p =>
-                {
-                    p.Property(e => e.Protocol).HasColumnType("VARCHAR(32)");
-                    p.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
-                });
+            //modelBuilder
+            //    .Entity<CourseStudent>(p =>
+            //    {
+            //        p.Property(e => e.Protocol).HasColumnType("VARCHAR(32)");
+            //        p.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
+            //    });
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -70,11 +71,14 @@ namespace ManyToMany
         public IList<Student> Students { get; } = new List<Student>();
     }
 
+    //[Keyless]
     public class CourseStudent
     {
         public int CourseId { get; set; }
         public int StudentId { get; set; }
         public string Protocol { get; set; }
+        public Course Course { get; set; }
+        public Student Student { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }
